@@ -1,0 +1,8 @@
+@import "tailwindcss";
+
+.nav-card {
+  @apply p-6 bg-white border rounded shadow hover:bg-gray-50 text-center font-medium;
+}
+.action-btn {
+  @apply p-3 bg-gray-900 text-white rounded hover:bg-black;
+}
