@@ -1,4 +1,3 @@
-// src/components/Dashboard/QuickActions.tsx
 import { useNavigate } from "react-router-dom";
 
 export default function QuickActions() {
@@ -32,6 +31,3 @@ export default function QuickActions() {
     </div>
   );
 }
-
-// Tailwind class shortcut
-const btnClass = "p-3 bg-gray-900 text-white rounded hover:bg-black";

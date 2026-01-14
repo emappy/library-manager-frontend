@@ -39,17 +39,16 @@ export default function ReturnModal({
     try {
       const res = await axios.post(
         "http://localhost:3000/borrow-records/return",
-        { borrow_record_id: selectedBorrowId }, // ✅ match Swagger
+        { borrow_record_id: selectedBorrowId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("Book returned!");
-      onReturn(res.data.id, res.data.return_date); // ✅ use return_date from API
+      onReturn(res.data.id, res.data.return_date);
       onClose();
     } catch (err) {
       console.error("Failed to return book", err);
       alert(
-        "Return failed: " + (err as any).response?.data?.message ??
-          "Unknown error"
+        ("Return failed: " + ((err as any).response?.data?.message ?? "Unknown error"))
       );
     }
   };
@@ -59,7 +58,12 @@ export default function ReturnModal({
       <div className="bg-white p-6 rounded shadow-lg w-full max-w-md">
         <h2 className="text-xl font-semibold mb-4">Return Book</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
+          <label htmlFor="borrow-select" className="block font-medium mb-1">
+            Select Borrow
+          </label>
           <select
+            id="borrow-select"
+            title="Select Borrow"
             value={selectedBorrowId ?? ""}
             onChange={(e) => setSelectedBorrowId(Number(e.target.value))}
             className="w-full border px-3 py-2 rounded"

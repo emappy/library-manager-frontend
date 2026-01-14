@@ -9,6 +9,7 @@ import { useAuth } from "../hooks/useAuth";
 import Staff from "../pages/Staff";
 import Reports from "../pages/Reports";
 import Genres from "../pages/Genres";
+import type { JSX } from "react";
 
 function PrivateRoute({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();

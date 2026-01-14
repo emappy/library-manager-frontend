@@ -8,10 +8,15 @@ type Staff = {
   role: string;
 };
 
+type StaffForm = Partial<Staff> & {
+  password?: string;
+  confirmPassword?: string;
+};
+
 export default function Staff() {
   const [staff, setStaff] = useState<Staff[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [form, setForm] = useState<Partial<Staff>>({});
+  const [form, setForm] = useState<StaffForm>({});
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
 
@@ -58,8 +63,8 @@ export default function Staff() {
     } catch (err) {
       console.error("Delete error:", err);
       alert(
-        "Delete failed: " + (err as any).response?.data?.message ??
-          "Unknown error"
+        "Delete failed: " +
+          ((err as any).response?.data?.message || "Unknown error")
       );
     }
   };
@@ -222,7 +227,14 @@ export default function Staff() {
                 className="border p-2 w-full rounded"
                 required
               />
+              <label
+                htmlFor="role"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Role
+              </label>
               <select
+                id="role"
                 name="role"
                 value={form.role ?? ""}
                 onChange={handleChange}

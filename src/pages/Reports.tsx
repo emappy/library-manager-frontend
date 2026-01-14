@@ -61,7 +61,7 @@ export default function Reports() {
             return (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
           });
         const avg = durations.length
-          ? durations.reduce((a, b) => a + b, 0) / durations.length
+          ? durations.reduce((a: number, b: number) => a + b, 0) / durations.length
           : 0;
         setBorrowDurationAvg(Number(avg.toFixed(1)));
 

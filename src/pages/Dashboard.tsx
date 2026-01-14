@@ -2,10 +2,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import BorrowModal from "../components/Borrow/BorrowModal";
 import ReturnModal from "../components/Borrow/ReturnModal";
-// import MemberModal from "../components/Members/MemberModal";
-// import BookModal from "../components/Books/BookModal";
-// import GenreManager from "../components/Genres/GenreManager";
-// import ReportsPage from "../components/Reports/ReportsPage";
 
 type Stats = {
   totalBooks: number;
@@ -26,10 +22,6 @@ export default function Dashboard() {
   // Modal toggles
   const [showBorrowModal, setShowBorrowModal] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
-  const [showMemberModal, setShowMemberModal] = useState(false);
-  const [showBookModal, setShowBookModal] = useState(false);
-  const [showGenreManager, setShowGenreManager] = useState(false);
-  const [showReports, setShowReports] = useState(false);
 
   const token = localStorage.getItem("token");
 
@@ -122,39 +114,12 @@ export default function Dashboard() {
           >
             Return Book
           </button>
-          <button
-            onClick={() => setShowMemberModal(true)}
-            className="bg-black text-white p-4 rounded shadow hover:bg-gray-800"
-          >
-            Add Member
-          </button>
-          <button
-            onClick={() => setShowBookModal(true)}
-            className="bg-black text-white p-4 rounded shadow hover:bg-gray-800"
-          >
-            Add Book
-          </button>
-          <button
-            onClick={() => setShowGenreManager(true)}
-            className="bg-black text-white p-4 rounded shadow hover:bg-gray-800"
-          >
-            Manage Genre
-          </button>
-          <button
-            onClick={() => setShowReports(true)}
-            className="bg-black text-white p-4 rounded shadow hover:bg-gray-800"
-          >
-            Reports
-          </button>
         </div>
       </div>
 
       {/* Modals / Pages */}
       {showBorrowModal && (
-        <BorrowModal
-          onClose={() => setShowBorrowModal(false)}
-          onBorrow={() => {}}
-        />
+        <BorrowModal onClose={() => setShowBorrowModal(false)} />
       )}
       {showReturnModal && (
         <ReturnModal
@@ -163,14 +128,6 @@ export default function Dashboard() {
           onReturn={() => {}}
         />
       )}
-      {showMemberModal && (
-        <MemberModal onClose={() => setShowMemberModal(false)} />
-      )}
-      {showBookModal && <BookModal onClose={() => setShowBookModal(false)} />}
-      {showGenreManager && (
-        <GenreManager onClose={() => setShowGenreManager(false)} />
-      )}
-      {showReports && <ReportsPage onClose={() => setShowReports(false)} />}
     </div>
   );
 }
