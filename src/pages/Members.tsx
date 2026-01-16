@@ -6,8 +6,8 @@ type Member = {
   name: string;
   email: string;
   phone: string;
-  join_date: string; // ISO date string
-  activeBorrows: number; // number of currently active borrows
+  join_date: string;
+  activeBorrows: number;
 };
 
 type BorrowingHistory = {
@@ -31,31 +31,33 @@ export default function Members() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [loading, setLoading] = useState(true);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const [viewMemberModal, setViewMemberModal] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
-  
-
   const token = localStorage.getItem("token");
 
-  // Fetch members
   useEffect(() => {
     const fetchMembers = async () => {
       try {
-        const res = await axios.get<Member[]>(
-          "http://localhost:3000/members",
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
+        const res = await axios.get<Member[]>(`${API_URL}/members`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
         const membersWithBorrows = await Promise.all(
           res.data.map(async (member) => {
             const historyRes = await axios.get<BorrowingHistory[]>(
-              `http://localhost:3000/members/${member.id}/borrowing-history`,
+              `${API_URL}/members/${member.id}/borrowing-history`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
 
-            const activeBorrows = historyRes.data.filter(
+            const history = Array.isArray(historyRes.data)
+              ? historyRes.data
+              : Array.isArray(historyRes.data?.borrows)
+              ? historyRes.data.borrows
+              : [];
+
+            const activeBorrows = history.filter(
               (b) => b.return_date === null
             ).length;
 
@@ -72,12 +74,11 @@ export default function Members() {
     };
 
     fetchMembers();
-  }, [token]);
+  }, [token, API_URL]);
 
   if (loading) {
     return <p className="p-6 text-gray-600">Loading Members...</p>;
   }
-
 
   // Filtered list
   const filtered = members.filter((m) =>
@@ -124,7 +125,7 @@ export default function Members() {
       if (editingId) {
         // PATCH /members/{id}
         await axios.patch(
-          `http://localhost:3000/members/${editingId}`,
+          `${API_URL}/members/${editingId}`,
           {
             name: form.name,
             email: form.email,
@@ -149,7 +150,7 @@ export default function Members() {
       } else {
         // POST /members
         const res = await axios.post(
-          "http://localhost:3000/members",
+          `${API_URL}/members`,
           {
             name: form.name,
             email: form.email,
@@ -158,7 +159,7 @@ export default function Members() {
           },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
+
         const created = res.data as Member;
         // If backend returns only id, merge with form
         const newMember: Member = {
@@ -193,12 +194,11 @@ export default function Members() {
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this member?")) return;
     try {
-      await axios.delete(`http://localhost:3000/members/${id}`, {
+      await axios.delete(`${API_URL}/members/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMembers((prev) => prev.filter((m) => m.id !== id));
     } catch (err) {
-      // Backend may return 500 if FK constraints exist
       console.error("Failed to delete member", err);
       alert("Unable to delete member. They may have related borrow records.");
     }

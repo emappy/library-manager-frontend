@@ -4,10 +4,9 @@ import { useAuth } from "../../hooks/useAuth";
 export default function LogoutButton() {
   const navigate = useNavigate();
   const {signOut } = useAuth();
-  //  const { user, signOut } = useAuth();
 
   const handleLogout = () => {
-    signOut(); // clears token + resets user
+    signOut(); 
     navigate("/login");
   };
 

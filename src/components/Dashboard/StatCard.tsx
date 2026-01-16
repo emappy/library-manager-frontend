@@ -1,4 +1,3 @@
-// src/components/Dashboard/StatCard.tsx
 type Props = { label: string; value: number };
 export default function StatCard({ label, value }: Props) {
   return (

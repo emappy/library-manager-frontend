@@ -19,13 +19,13 @@ export default function Staff() {
   const [form, setForm] = useState<StaffForm>({});
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
   // Fetch staff
   useEffect(() => {
     axios
-      .get("http://localhost:3000/auth/users", {
+      .get(`${API_URL}/auth/users`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setStaff(res.data.users))
@@ -55,7 +55,7 @@ export default function Staff() {
     if (!confirm("Delete this staff member?")) return;
 
     try {
-      await axios.delete(`http://localhost:3000/staff/${id}`, {
+      await axios.delete(`${API_URL}/staff/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setStaff((prev) => prev.filter((s) => s.id !== id));
@@ -88,7 +88,7 @@ export default function Staff() {
     try {
       if (editingId) {
         const res = await axios.patch(
-          `http://localhost:3000/staff/${editingId}`,
+          `${API_URL}/staff/${editingId}`,
           {
             username: form.username,
             email: form.email,
@@ -102,7 +102,7 @@ export default function Staff() {
         alert("Staff updated!");
       } else {
         const res = await axios.post(
-          "http://localhost:3000/staff",
+          `${API_URL}/staff`,
           {
             username: form.username,
             email: form.email,

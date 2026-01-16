@@ -17,13 +17,13 @@ export default function Reports() {
   const [monthlyBorrows, setMonthlyBorrows] = useState<number>(0);
   const [borrowDurationAvg, setBorrowDurationAvg] = useState<number>(0);
   const [returnRate, setReturnRate] = useState<number>(0);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     const fetchReports = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/borrow-records", {
+        const res = await axios.get(`${API_URL}/borrow-records`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -61,7 +61,8 @@ export default function Reports() {
             return (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
           });
         const avg = durations.length
-          ? durations.reduce((a: number, b: number) => a + b, 0) / durations.length
+          ? durations.reduce((a: number, b: number) => a + b, 0) /
+            durations.length
           : 0;
         setBorrowDurationAvg(Number(avg.toFixed(1)));
 

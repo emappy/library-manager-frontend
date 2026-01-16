@@ -19,41 +19,54 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
 
+  const [activeBorrowsList, setActiveBorrowsList] = useState<any[]>([]);
+
   // Modal toggles
   const [showBorrowModal, setShowBorrowModal] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
 
   const token = localStorage.getItem("token");
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const [booksRes, membersRes, borrowsRes] = await Promise.all([
-          axios.get("http://localhost:3000/books", {
+          axios.get(`${API_URL}/books`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:3000/members", {
+          axios.get(`${API_URL}/members`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:3000/borrow-records", {
+          axios.get(`${API_URL}/borrow-records`, {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
 
-        const books = booksRes.data;
-        const members = membersRes.data;
-        const borrows = borrowsRes.data;
+        const books = Array.isArray(booksRes.data)
+          ? booksRes.data
+          : booksRes.data?.books ?? [];
 
-        const activeBorrows = borrows.filter((b: any) => !b.return_date).length;
-        const overdueBorrows = borrows.filter(
-          (b: any) => !b.return_date && new Date(b.due_date) < new Date()
-        ).length;
+        const members = Array.isArray(membersRes.data)
+          ? membersRes.data
+          : membersRes.data?.members ?? [];
+
+        const borrows = Array.isArray(borrowsRes.data)
+          ? borrowsRes.data
+          : borrowsRes.data?.borrows ?? [];
+
+        const activeBorrowsArray = borrows.filter((b: any) => !b.return_date);
+        const overdueBorrows = activeBorrowsArray.filter(
+          (b: any) => new Date(b.due_date) < new Date()
+        );
+
+        setActiveBorrowsList(activeBorrowsArray);
 
         setStats({
           totalBooks: books.length,
           totalMembers: members.length,
-          activeBorrows,
-          overdueBorrows,
+          activeBorrows: activeBorrowsArray.length,
+          overdueBorrows: overdueBorrows.length,
         });
       } catch (err) {
         console.error("Failed to fetch dashboard stats", err);
@@ -63,7 +76,7 @@ export default function Dashboard() {
     };
 
     fetchStats();
-  }, [token]);
+  }, [token, API_URL]);
 
   if (loading) {
     return <p className="p-6 text-gray-600">Loading dashboard...</p>;
@@ -117,15 +130,17 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Modals / Pages */}
+      {/* Modals */}
       {showBorrowModal && (
         <BorrowModal onClose={() => setShowBorrowModal(false)} />
       )}
       {showReturnModal && (
         <ReturnModal
           onClose={() => setShowReturnModal(false)}
-          activeBorrows={[]}
-          onReturn={() => {}}
+          activeBorrows={activeBorrowsList}
+          onReturn={() => {
+            setShowReturnModal(false);
+          }}
         />
       )}
     </div>

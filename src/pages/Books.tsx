@@ -28,20 +28,20 @@ export default function Books() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [viewBook, setViewBook] = useState<Book | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
   // Fetch books + genres
   useEffect(() => {
     axios
-      .get("http://localhost:3000/books", {
+      .get(`${API_URL}/books`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setBooks(res.data))
       .catch((err) => console.error("Failed to fetch books", err));
 
     axios
-      .get("http://localhost:3000/genres", {
+      .get(`${API_URL}/genres`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setGenres(res.data))
@@ -50,26 +50,33 @@ export default function Books() {
 
   // Search filter
   const filtered = books.filter((b) =>
-    [b.title, b.author, b.genre.name].some((field) =>
-      field.toLowerCase().includes(search.toLowerCase())
-    )
+    [b.title, b.author, b.genre?.name]
+      .filter((field) => typeof field === "string")
+      .some((field) => field.toLowerCase().includes(search.toLowerCase()))
   );
 
   // Delete
+
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this book?")) return;
     try {
-      await axios.delete(`http://localhost:3000/books/${id}`, {
+      await axios.delete(`${API_URL}/books/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("Book deleted!");
       setBooks((prev) => prev.filter((b) => b.id !== id));
-    } catch (err) {
+    } catch (err: any) {
       console.error("Failed to delete book", err);
+
+      // Check if backend sent a specific error message
+      const message =
+        err.response?.data?.message ||
+        "Book could not be deleted. It may have active borrows.";
+
+      alert(message);
     }
   };
 
-  // Form change handler (keep numeric parsing)
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -100,9 +107,11 @@ export default function Books() {
       if (editingId) {
         // PATCH per Swagger
         const res = await axios.patch(
-          `http://localhost:3000/books/${editingId}`,
+          `${API_URL}/books/${editingId}`,
           payload,
-          { headers: { Authorization: `Bearer ${token}` } }
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
         );
         // Update local state without reload
         setBooks((prev) =>
@@ -110,7 +119,7 @@ export default function Books() {
         );
         alert("Book updated!");
       } else {
-        const res = await axios.post("http://localhost:3000/books", payload, {
+        const res = await axios.post(`${API_URL}/books`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setBooks((prev) => [...prev, res.data]);
@@ -185,7 +194,14 @@ export default function Books() {
             <div>
               <h2 className="text-lg font-semibold">{book.title}</h2>
               <p className="text-gray-700">Author: {book.author}</p>
-              <p className="text-gray-700">Genre: {book.genre.name}</p>
+              {/* <p className="text-gray-700">Genre: {book.genre.name}</p> */}
+              <p className="text-gray-700">
+                Genre:{" "}
+                {typeof book.genre === "string"
+                  ? book.genre
+                  : book.genre?.name ?? "Uncategorized"}
+              </p>
+
               <p className="text-gray-600">Published: {book.published_year}</p>
               <p className="text-gray-600">
                 Available Copies: {book.available_copies}
@@ -253,7 +269,11 @@ export default function Books() {
                 onChange={handleChange}
                 className="border p-2 w-full rounded"
               />
+              <label htmlFor="genre_id" className="block mb-1 font-medium">
+                Genre
+              </label>
               <select
+                id="genre_id"
                 name="genre_id"
                 value={form.genre_id}
                 onChange={handleChange}

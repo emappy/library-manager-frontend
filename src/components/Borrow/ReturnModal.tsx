@@ -31,14 +31,14 @@ export default function ReturnModal({
   const [selectedBorrowId, setSelectedBorrowId] = useState<number | null>(null);
 
   const token = localStorage.getItem("token");
-
+const API_URL = import.meta.env.VITE_API_URL;
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedBorrowId) return;
 
     try {
       const res = await axios.post(
-        "http://localhost:3000/borrow-records/return",
+        `${API_URL}/borrow-records/return`,
         { borrow_record_id: selectedBorrowId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -10,12 +10,13 @@ export default function Genres() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [showFormModal, setShowFormModal] = useState(false);
   const [loading, setLoading] = useState(false);
-
+const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     axios
-      .get("http://localhost:3000/genres", {
+      .get(`${API_URL}/genres`, {
+        // .get("http://localhost:3000/genres", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setGenres(res.data))
@@ -46,7 +47,7 @@ export default function Genres() {
     try {
       if (editingId) {
         await axios.patch(
-          `http://localhost:3000/genres/${editingId}`,
+          `${API_URL}/genres/${editingId}`,
           { name },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -57,7 +58,7 @@ export default function Genres() {
         );
       } else {
         const res = await axios.post(
-          "http://localhost:3000/genres",
+          `${API_URL}/genres`,
           { name },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -80,7 +81,7 @@ export default function Genres() {
   const handleDelete = async (id: number) => {
     if (!confirm("Delete this genre?")) return;
     try {
-      await axios.delete(`http://localhost:3000/genres/${id}`, {
+      await axios.delete(`${API_URL}/genres/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setGenres((prev) => prev.filter((g) => g.id !== id));

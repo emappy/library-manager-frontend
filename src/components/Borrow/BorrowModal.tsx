@@ -9,7 +9,7 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
   const [members, setMembers] = useState<Member[]>([]);
   const [bookId, setBookId] = useState<number | null>(null);
   const [memberId, setMemberId] = useState<number | null>(null);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   // Pre-fill dates
   const [borrowDate, setBorrowDate] = useState(
     () => new Date().toISOString().split("T")[0]
@@ -24,14 +24,14 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
   const token = localStorage.getItem("token");
 
   useEffect(() => {
-    fetch("http://localhost:3000/books", {
+    fetch(`${API_URL}/books`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
       .then(setBooks)
       .catch((err) => console.error("Failed to load books", err));
 
-    fetch("http://localhost:3000/members", {
+    fetch(`${API_URL}/members`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
@@ -47,7 +47,7 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
 
     axios
       .post(
-        "http://localhost:3000/borrow-records/borrow",
+        `${API_URL}/borrow-records/borrow`,
         {
           book_id: bookId,
           member_id: memberId,
@@ -79,11 +79,16 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
         </p>
 
         <div className="space-y-2">
-          <label className="block font-medium">Select Book</label>
+          <label htmlFor="book-select" className="block font-medium">
+            Select Book
+          </label>
           <select
+            id="book-select"
             value={bookId ?? ""}
             onChange={(e) => setBookId(Number(e.target.value))}
             className="border p-2 w-full rounded"
+            aria-label="Select Book"
+            title="Select Book"
           >
             <option value="">Choose a book to borrow</option>
             {books.map((b) => (
@@ -98,6 +103,8 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
             value={memberId ?? ""}
             onChange={(e) => setMemberId(Number(e.target.value))}
             className="border p-2 w-full rounded"
+            aria-label="Select Member"
+            title="Select Member"
           >
             <option value="">Choose a member</option>
             {members.map((m) => (

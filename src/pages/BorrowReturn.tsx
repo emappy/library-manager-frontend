@@ -26,13 +26,13 @@ export default function BorrowReturn() {
   const [borrows, setBorrows] = useState<Borrow[]>([]);
   const [showBorrowModal, setShowBorrowModal] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
-
+  const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
   // Fetch borrow records
   useEffect(() => {
     axios
-      .get("http://localhost:3000/borrow-records", {
+      .get(`${API_URL}/borrow-records`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -62,8 +62,8 @@ export default function BorrowReturn() {
   const handleReturn = (id: number) => {
     axios
       .post(
-        "http://localhost:3000/borrow-records/return",
-        { borrow_record_id: id }, 
+        `${API_URL}/borrow-records/return`,
+        { borrow_record_id: id },
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((res) => {
@@ -84,9 +84,13 @@ export default function BorrowReturn() {
   };
 
   // Handle borrow from modal
-  const handleBorrow = (form: { book_id: number; member_id: number; due_date: string }) => {
+  const handleBorrow = (form: {
+    book_id: number;
+    member_id: number;
+    due_date: string;
+  }) => {
     axios
-      .post("http://localhost:3000/borrow-records/borrow", form, {
+      .post(`${API_URL}/borrow-records/borrow`, form, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -118,8 +122,8 @@ export default function BorrowReturn() {
   const handleReturnFromModal = (id: number) => {
     axios
       .post(
-        "http://localhost:3000/borrow-records/return",
-        { borrow_record_id: id }, // 
+        `${API_URL}/borrow-records/return`,
+        { borrow_record_id: id }, //
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((res) => {

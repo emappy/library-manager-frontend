@@ -1,4 +1,3 @@
-// src/components/Auth/PrivateRoute.tsx
 import type { JSX } from "react";
 import { Navigate } from "react-router-dom";
 
