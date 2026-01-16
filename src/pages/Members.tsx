@@ -53,12 +53,13 @@ export default function Members() {
 
             const history = Array.isArray(historyRes.data)
               ? historyRes.data
-              : Array.isArray(historyRes.data?.borrows)
-              ? historyRes.data.borrows
+              : historyRes.data &&
+                Array.isArray((historyRes.data as any).borrows)
+              ? (historyRes.data as any).borrows
               : [];
 
             const activeBorrows = history.filter(
-              (b) => b.return_date === null
+              (b: BorrowingHistory) => b.return_date === null
             ).length;
 
             return { ...member, activeBorrows };

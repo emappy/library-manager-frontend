@@ -5,16 +5,8 @@ export type LoginPayload = {
   password: string;
 };
 
-export type AuthUser = {
-  id: number;
-  username: string;
-  email: string;
-  role: string;
-};
-
 export type LoginResponse = {
   access_token: string;
-  user: AuthUser;
 };
 
 export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
@@ -22,7 +14,7 @@ export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
   return data;
 };
 
-export const getMe = async (): Promise<AuthUser> => {
-  const { data } = await api.get<AuthUser>("/auth/me");
+export const getMe = async () => {
+  const { data } = await api.get("/auth/me");
   return data;
 };
