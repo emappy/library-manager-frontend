@@ -22,12 +22,11 @@ type Borrow = {
   status: "ACTIVE" | "RETURNED" | "OVERDUE";
 };
 
-
-
 export default function BorrowReturn() {
   const [borrows, setBorrows] = useState<Borrow[]>([]);
   const [showBorrowModal, setShowBorrowModal] = useState(false);
   const [showReturnModal, setShowReturnModal] = useState(false);
+
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("token");
 
@@ -58,9 +57,9 @@ export default function BorrowReturn() {
         setBorrows(mapped);
       })
       .catch((err) => console.error("Failed to fetch borrows", err));
-  }, [token]);
+  }, [token, API_URL]);
 
-  // Handle inline return
+  // Inline return handler
   const handleReturn = (id: number) => {
     axios
       .post(
@@ -73,11 +72,7 @@ export default function BorrowReturn() {
         setBorrows((prev) =>
           prev.map((b) =>
             b.id === id
-              ? {
-                  ...b,
-                  returned: updated.return_date,
-                  status: "RETURNED",
-                }
+              ? { ...b, returned: updated.return_date, status: "RETURNED" }
               : b
           )
         );
@@ -85,7 +80,7 @@ export default function BorrowReturn() {
       .catch((err) => console.error("Failed to return book", err));
   };
 
-  // Handle borrow from modal
+  // Borrow from modal
   const handleBorrow = (form: {
     book_id: number;
     member_id: number;
@@ -120,12 +115,12 @@ export default function BorrowReturn() {
       .catch((err) => console.error("Failed to borrow book", err));
   };
 
-  // Handle return from modal
+  // Return from modal
   const handleReturnFromModal = (id: number) => {
     axios
       .post(
         `${API_URL}/borrow-records/return`,
-        { borrow_record_id: id }, //
+        { borrow_record_id: id },
         { headers: { Authorization: `Bearer ${token}` } }
       )
       .then((res) => {
@@ -133,11 +128,7 @@ export default function BorrowReturn() {
         setBorrows((prev) =>
           prev.map((b) =>
             b.id === id
-              ? {
-                  ...b,
-                  returned: updated.return_date,
-                  status: "RETURNED",
-                }
+              ? { ...b, returned: updated.return_date, status: "RETURNED" }
               : b
           )
         );

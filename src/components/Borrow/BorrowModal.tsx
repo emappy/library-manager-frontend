@@ -4,12 +4,24 @@ import axios from "axios";
 type Book = { id: number; title: string };
 type Member = { id: number; name: string };
 
-export default function BorrowModal({ onClose }: { onClose: () => void }) {
+interface BorrowModalProps {
+  onClose: () => void;
+  onBorrow: (form: {
+    book_id: number;
+    member_id: number;
+    due_date: string;
+  }) => void;
+}
+
+export default function BorrowModal({ onClose, onBorrow }: BorrowModalProps) {
   const [books, setBooks] = useState<Book[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [bookId, setBookId] = useState<number | null>(null);
   const [memberId, setMemberId] = useState<number | null>(null);
+
   const API_URL = import.meta.env.VITE_API_URL;
+  const token = localStorage.getItem("token");
+
   // Pre-fill dates
   const [borrowDate, setBorrowDate] = useState(
     () => new Date().toISOString().split("T")[0]
@@ -20,8 +32,6 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
         .toISOString()
         .split("T")[0]
   );
-
-  const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetch(`${API_URL}/books`, {
@@ -37,7 +47,7 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
       .then((res) => res.json())
       .then(setMembers)
       .catch((err) => console.error("Failed to load members", err));
-  }, [token]);
+  }, [token, API_URL]);
 
   const handleSubmit = () => {
     if (!bookId || !memberId || !dueDate) {
@@ -51,7 +61,7 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
         {
           book_id: bookId,
           member_id: memberId,
-          due_date: dueDate, // send state variable as API field
+          due_date: dueDate,
         },
         {
           headers: { Authorization: `Bearer ${token}` },
@@ -59,6 +69,7 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
       )
       .then(() => {
         alert("Book borrowed!");
+        onBorrow({ book_id: bookId, member_id: memberId, due_date: dueDate });
         onClose();
       })
       .catch((err) => {
@@ -87,8 +98,6 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
             value={bookId ?? ""}
             onChange={(e) => setBookId(Number(e.target.value))}
             className="border p-2 w-full rounded"
-            aria-label="Select Book"
-            title="Select Book"
           >
             <option value="">Choose a book to borrow</option>
             {books.map((b) => (
@@ -103,8 +112,6 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
             value={memberId ?? ""}
             onChange={(e) => setMemberId(Number(e.target.value))}
             className="border p-2 w-full rounded"
-            aria-label="Select Member"
-            title="Select Member"
           >
             <option value="">Choose a member</option>
             {members.map((m) => (
@@ -120,7 +127,7 @@ export default function BorrowModal({ onClose }: { onClose: () => void }) {
             value={borrowDate}
             onChange={(e) => setBorrowDate(e.target.value)}
             className="border p-2 w-full rounded"
-            disabled // display only, not sent to API
+            // disabled
           />
 
           <label className="block font-medium">Due Date</label>

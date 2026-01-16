@@ -132,7 +132,10 @@ export default function Dashboard() {
 
       {/* Modals */}
       {showBorrowModal && (
-        <BorrowModal onClose={() => setShowBorrowModal(false)} />
+        <BorrowModal
+          onClose={() => setShowBorrowModal(false)}
+          onBorrow={() => setShowBorrowModal(false)}
+        />
       )}
       {showReturnModal && (
         <ReturnModal
